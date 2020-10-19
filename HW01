@@ -1,11 +1,64 @@
-# include<stdio.h>
-# include<stdlib.h>
-# include<string.h>
-# include<iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <fstream>
+#include <cstring>
 
-using namespace std;
+using namespace std ;
+
+struct Data {
+	char token[10] ;
+};
+
+class DataList {
+	std :: vector<Data> DataList [7] ;
+};
+
+void readFile ( vector<Data> &dataVector, string & fileName ) ;
 
 int main () {
-  cout << "hi" << endl ;
-  cout << "123" ;
+	std :: vector<Data> inputVector ;
+	string fileName ;
+	DataList datalist ;
+	readFile( inputVector, fileName ) ;
+  	cout << "hi" << endl ;
+ 	cout << "123" ;
 } // main
+
+void readFile ( vector<Data> &dataVector, string & fileName ) {
+	fstream binFile ;
+	Data oneSt ;
+	string returnName ;
+	Data temp ;
+	int dataNo = 0 ;
+	bool isInput = false ;
+	
+	while( isInput == false ) {
+
+		cout << "input a file number：" ;
+		cin >> fileName ;
+		binFile.open(("pairs" + fileName + ".bin").c_str(), fstream::in ) ;
+		if ( binFile.is_open() ) 
+			isInput = true ;
+			
+		binFile.close() ;
+	}
+	returnName = fileName ;
+	fileName = "pairs" + fileName +".bin" ;
+	binFile.open(fileName.c_str(), fstream::in | fstream::binary ) ;
+	if ( binFile.is_open() ) {
+		binFile.seekg( 0,binFile.end ) ;
+		dataNo = binFile.tellg() / sizeof( oneSt ) ;
+		binFile.seekg( 0, binFile.beg ) ;
+		for ( int i = 0 ; i < dataNo ; i++ ) {
+			binFile.read( ( char* )&oneSt, sizeof( oneSt ) ) ;
+			strcpy( temp.token, oneSt.token ) ;
+			dataVector.push_back( temp ) ;
+		} // for
+	} // if
+	binFile.close() ;
+	fileName = returnName ;
+} // readFile()
