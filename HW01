@@ -51,7 +51,7 @@ void readFile ( vector<Data> &dataVector, string & fileName ) {
 	binFile.open(fileName.c_str(), fstream::in | fstream::binary ) ;
 	if ( binFile.is_open() ) {
 		binFile.seekg( 0,binFile.end ) ;
-		dataNo = binFile.tellg() / sizeof( oneSt ) ;
+		dataNo = binFile.tellg() ;
 		binFile.seekg( 0, binFile.beg ) ;
 		for ( int i = 0 ; i < dataNo ; i++ ) {
 			binFile.read( ( char* )&oneSt, sizeof( oneSt ) ) ;
