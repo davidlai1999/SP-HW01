@@ -6,59 +6,258 @@
 #include <cstdlib>
 #include <fstream>
 #include <cstring>
+#include <cctype>
 
 using namespace std ;
 
 struct Data {
-	char token[10] ;
+	string token ;
+	int count ;
 };
+
+int test( char ch ) ;
+bool testNumber( string str ) ;
+bool testWord( string str ) ;
 
 class DataList {
+	std :: vector<Data> Table [4] ;
 	std :: vector<Data> DataList [7] ;
+	
+	public :
+		void readTable() {
+			string file, str ;
+			char cStr[256] ;
+			fstream infile ;
+			file = "Table1.table" ;
+			infile.open( file.c_str(), fstream::in ) ;
+			while ( infile.getline( cStr, 256 ) ) {
+				Data temp ;
+   				string buf ;
+   				buf.assign( cStr ) ;
+    			temp.token = buf ;
+    			Table[0].push_back( temp ) ;
+    		} // while
+    		infile.close() ;
+    		
+			file = "Table2.table" ;
+			infile.open( file.c_str(), fstream::in ) ;
+			while ( infile.getline( cStr, 256 ) ) {
+				Data temp ;
+   				string buf ;
+   				buf.assign( cStr ) ;
+    			temp.token = buf ;
+    			Table[1].push_back( temp ) ;
+    		} // while
+    		infile.close() ;
+    		
+			file = "Table3.table" ;
+			infile.open( file.c_str(), fstream::in ) ;
+			while ( infile.getline( cStr, 256 ) ) {
+				Data temp ;
+   				string buf ;
+   				buf.assign( cStr ) ;
+    			temp.token = buf ;
+    			Table[2].push_back( temp ) ;
+    		} // while
+    		infile.close() ;
+    		
+			file = "Table4.table" ;
+			infile.open( file.c_str(), fstream::in ) ;
+			while ( infile.getline( cStr, 256 ) ) {
+				Data temp ;
+   				string buf ;
+   				buf.assign( cStr ) ;
+    			temp.token = buf ;
+    			Table[3].push_back( temp ) ;
+    		} // while
+    		infile.close() ;    		
+		} // readTable()
+			
+		int tableTest( string str ) {
+			string low_str = str ;
+			for ( int i = 0 ; i < str.size() ; i++ ) {
+				low_str[i] = tolower( low_str[i] ) ;
+			} // for
+			
+			for ( int i = 0 ; i < Table[0].size() ; i++ ) {
+				if ( low_str == Table[0][i].token )
+					return 0 ;
+			} // for
+			
+		
+			for ( int i = 1 ; i < 3 ; i++ ) {
+				for ( int j = 0 ; j < Table[i].size() ; j++ ) {
+					if ( str == Table[i][j].token ) {
+						return i ;
+					} // if
+				} // for
+			} // for
+			
+			return 7 ;
+		} // tableTest()
+		
+		void readInput() {
+			string file ;
+			fstream infile ;
+			int i = 0, pre, pos ;
+			int pre_mod = 0 , pos_mod = 0 ;
+			char cStr[256] ;
+  
+			cout << "請輸入檔案名稱："; 
+			cin >> file;
+  			file = "SIC_" + file + ".txt" ; 
+  			infile.open( file.c_str(), fstream::in ) ;
+  	
+			while( !infile.is_open() ) {
+				cout << "檔案名稱錯誤,重新輸入：" ;
+    			cin >> file;
+	 			file = "SIC_" + file + ".txt" ; 
+    			infile.open( file.c_str(), fstream::in ) ;
+			} //while
+			while ( infile.getline( cStr, 256 ) ) {
+				Data temp ;
+   				string buf, cut ;
+   				buf.assign( cStr ) ;
+   				while ( i < buf.length() ) {
+   					while ( buf[i] == ' ' || buf[i] == '\t' ) 
+   						i++ ;
+   					if ( i >= buf.size() )
+   						break ;
+
+					pre = i ;
+					pre_mod = test( buf[i] ) ;
+					if ( buf[i] == '(' && buf[i+1] == '.' && buf[i+2] == ')' ) {
+						i = buf.length() ;
+					} // if
+					else if ( test( buf[i] ) == 3 ) {
+						pos = i + 1 ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;
+    					DataList[3].push_back( temp ) ;
+    					i++ ;
+					} // else if
+					else if ( ( buf[i] == 'C' || buf[i] == 'c' || buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 ) {
+						i++ ;
+						pre = i ;
+						pos = i + 1 ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;
+    					DataList[3].push_back( temp ) ;
+    					
+						pre = i + 1 ;
+						i++ ;
+						while ( buf[i] != 39 ) {
+							i++ ;
+						} // while
+						pos = i ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;				
+    					
+						pre = i ;
+						i++ ;	
+						pos = i ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;
+    					DataList[3].push_back( temp ) ;
+																
+					} // else if
+					else {
+						i++ ;
+						pos_mod = test( buf[i] ) ;
+						
+						while ( i < buf.length() && buf[i] != ' ' && pos_mod == pre_mod ) {
+							i++ ;
+							pos_mod = test( buf[i] ) ;
+						} // while
+						
+						pos = i ;
+						if ( i > pre + 1 ) {
+							i++ ;
+						} // if
+
+    					if ( pos >= pre ) {
+    						cut = buf.substr( pre, pos-pre ) ;
+    						temp.token = cut ;
+    						if ( tableTest( cut ) == 0 ) 
+    							DataList[0].push_back( temp ) ;
+    						else if ( tableTest( cut ) == 1 )
+    							DataList[1].push_back( temp ) ;
+    						else if ( tableTest( cut ) == 2 )
+    							DataList[2].push_back( temp ) ;	
+    						else {
+    							if ( testNumber( cut ) == true ) 
+    								DataList[4].push_back( temp ) ;
+								else if ( testWord( cut ) == true )
+									DataList[5].push_back( temp ) ;	
+								else
+									DataList[6].push_back( temp ) ;
+							} // else
+    					} // if 
+    					
+    				} //else
+    				
+    				//cout << i << "and" << buf.length() ;
+    			} // while
+				
+    			i = 0 ;
+    			
+			} // while
+			infile.close() ;
+		} // ReadInput
+		
+		void show() {				
+			for ( int i = 0 ; i < 7 ; i++ )	{
+				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
+					cout << "table" << i+1 << endl ;
+					cout << DataList[i][j].token << endl ;
+				} //for
+			} // for
+		} // setdata()		
 };
 
-void readFile ( vector<Data> &dataVector, string & fileName ) ;
 
 int main () {
-	std :: vector<Data> inputVector ;
 	string fileName ;
 	DataList datalist ;
-	readFile( inputVector, fileName ) ;
-  	cout << "hi" << endl ;
- 	cout << "123" ;
+	datalist.readTable() ;
+	datalist.readInput() ;
+	datalist.show() ;
 } // main
 
-void readFile ( vector<Data> &dataVector, string & fileName ) {
-	fstream binFile ;
-	Data oneSt ;
-	string returnName ;
-	Data temp ;
-	int dataNo = 0 ;
-	bool isInput = false ;
+int test( char ch ) {
 	
-	while( isInput == false ) {
-
-		cout << "input a file number：" ;
-		cin >> fileName ;
-		binFile.open(("pairs" + fileName + ".bin").c_str(), fstream::in ) ;
-		if ( binFile.is_open() ) 
-			isInput = true ;
-			
-		binFile.close() ;
+	if ( ch >= 48 && ch <=57 )
+		return 1 ;
+	else if ( ( ch >= 65 && ch <= 90 ) || ( ch >= 97 && ch <= 122 ) ) {
+		return 2 ;
 	}
-	returnName = fileName ;
-	fileName = "pairs" + fileName +".bin" ;
-	binFile.open(fileName.c_str(), fstream::in | fstream::binary ) ;
-	if ( binFile.is_open() ) {
-		binFile.seekg( 0,binFile.end ) ;
-		dataNo = binFile.tellg() ;
-		binFile.seekg( 0, binFile.beg ) ;
-		for ( int i = 0 ; i < dataNo ; i++ ) {
-			binFile.read( ( char* )&oneSt, sizeof( oneSt ) ) ;
-			strcpy( temp.token, oneSt.token ) ;
-			dataVector.push_back( temp ) ;
-		} // for
-	} // if
-	binFile.close() ;
-	fileName = returnName ;
-} // readFile()
+	else if ( ( ch >= 42 && ch <= 47 ) || ch == 58 || ch == 59 || ch == 61 || ch == 63 || ch == 35 || ch == 39 || ch == 64 ) {
+		return 3 ;
+	}
+	else 
+		return 4 ;
+} // test()
+
+bool testNumber( string str ) {
+	bool test = true ;
+	for ( int i = 0 ; i < str.size() ; i++ ) {
+		if ( str[i] < 48 || str[i] > 57 ) {
+			test = false ;
+			return test ;
+		} // if
+	} // for
+	
+	return test ;
+} // testNumber()
+
+bool testWord( string str ) {
+	bool test = true ;
+	for ( int i = 0 ; i < str.size() ; i++ ) {
+		if ( ( str[i] < 65 || str[i] > 90 ) && ( str[i] < 97 || str[i] > 122 ) ) {
+			test = false ;
+			return test ;
+		} // if
+	} // for
+	
+	return test ;
+} // testNumber()
