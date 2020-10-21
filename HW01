@@ -13,19 +13,25 @@ using namespace std ;
 struct Data {
 	string token ;
 	int count ;
+	bool exist ; 
 };
 
 int test( char ch ) ;
 bool testNumber( string str ) ;
 bool testWord( string str ) ;
+int sumOfASCII( string str ) ;
 
 class DataList {
 	std :: vector<Data> Table [4] ;
-	std :: vector<Data> DataList [7] ;
+	std :: vector<Data> DataList [4] ;
+	Data Table5[100] ;
+	Data Table6[100] ;
+	Data Table7[100] ;
 	
 	public :
 		void readTable() {
 			string file, str ;
+			int dataNo = 1 ;
 			char cStr[256] ;
 			fstream infile ;
 			file = "Table1.table" ;
@@ -35,10 +41,13 @@ class DataList {
    				string buf ;
    				buf.assign( cStr ) ;
     			temp.token = buf ;
+    			temp.count = dataNo ;
     			Table[0].push_back( temp ) ;
+    			dataNo++ ;
     		} // while
     		infile.close() ;
     		
+    		dataNo = 1 ;
 			file = "Table2.table" ;
 			infile.open( file.c_str(), fstream::in ) ;
 			while ( infile.getline( cStr, 256 ) ) {
@@ -46,10 +55,13 @@ class DataList {
    				string buf ;
    				buf.assign( cStr ) ;
     			temp.token = buf ;
+    			temp.count = dataNo ;
     			Table[1].push_back( temp ) ;
+    			dataNo++ ;
     		} // while
     		infile.close() ;
     		
+    		dataNo = 1 ;
 			file = "Table3.table" ;
 			infile.open( file.c_str(), fstream::in ) ;
 			while ( infile.getline( cStr, 256 ) ) {
@@ -57,10 +69,13 @@ class DataList {
    				string buf ;
    				buf.assign( cStr ) ;
     			temp.token = buf ;
+    			temp.count = dataNo ;
     			Table[2].push_back( temp ) ;
+    			dataNo++ ;
     		} // while
     		infile.close() ;
     		
+    		dataNo = 1 ;
 			file = "Table4.table" ;
 			infile.open( file.c_str(), fstream::in ) ;
 			while ( infile.getline( cStr, 256 ) ) {
@@ -68,7 +83,9 @@ class DataList {
    				string buf ;
    				buf.assign( cStr ) ;
     			temp.token = buf ;
+    			temp.count = dataNo ;
     			Table[3].push_back( temp ) ;
+    			dataNo++ ;
     		} // while
     		infile.close() ;    		
 		} // readTable()
@@ -96,28 +113,90 @@ class DataList {
 			return 7 ;
 		} // tableTest()
 		
+		int findCount( string str ) {
+			for ( int i = 0 ; i < 4 ; i++ ) {
+				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
+					if ( DataList[i][j].token == str )
+						return DataList[i][j].count ;
+				} // for
+			} // for
+		} // findCount()
+		
+		void setTable567() {
+			for ( int i = 0 ; i < 100 ; i++ ) {
+				Table5[i].exist = false ;
+				Table5[i].count = i + 1 ;
+			} // for
+			for ( int i = 0 ; i < 100 ; i++ ) {
+				Table6[i].exist = false ;
+				Table6[i].count = i + 1 ;
+			} // for
+			for ( int i = 0 ; i < 100 ; i++ ) {
+				Table7[i].exist = false ;
+				Table7[i].count = i + 1 ;
+			} // for
+		} // setTable567()
+		
+		void setTable5( int address, string str ) {
+			while ( Table5[address].exist == true ) {
+				address++ ;
+				if ( address == 100 )
+					address = 0 ;
+			} // while
+			Table5[address].token = str ;
+			Table5[address].exist = true ;
+		} // setTable5() 
+
+		void setTable6( int address, string str ) {
+			while ( Table6[address].exist == true ) {
+				address++ ;
+				if ( address == 100 )
+					address = 0 ;
+			} // while
+			Table6[address].token = str ;
+			Table6[address].exist = true ;
+		} // setTable5() 
+		
+		void setTable7( int address, string str ) {
+			while ( Table7[address].exist == true ) {
+				address++ ;
+				if ( address == 100 )
+					address = 0 ;
+			} // while
+			Table7[address].token = str ;
+			Table7[address].exist = true ;
+		} // setTable6() 	
+			
 		void readInput() {
-			string file ;
+			string file, outputfile ;
 			fstream infile ;
+			FILE * outfile ;
 			int i = 0, pre, pos ;
-			int pre_mod = 0 , pos_mod = 0 ;
+			int pre_mod = 0 , pos_mod = 0, address = 0 ;
+			int count ;
 			char cStr[256] ;
-  
+			
+  			setTable567() ;
 			cout << "請輸入檔案名稱："; 
 			cin >> file;
-  			file = "SIC_" + file + ".txt" ; 
+			outputfile = file + "output.txt" ;
+  			file = file + "input.txt" ; 
   			infile.open( file.c_str(), fstream::in ) ;
-  	
+  			outfile = fopen( outputfile.c_str(), "w+t" ) ; 
+  			
 			while( !infile.is_open() ) {
 				cout << "檔案名稱錯誤,重新輸入：" ;
     			cin >> file;
+    			outputfile = file + "output.txt" ;
 	 			file = "SIC_" + file + ".txt" ; 
     			infile.open( file.c_str(), fstream::in ) ;
+    			outfile = fopen( outputfile.c_str(), "w+t" ) ; 
 			} //while
 			while ( infile.getline( cStr, 256 ) ) {
 				Data temp ;
    				string buf, cut ;
    				buf.assign( cStr ) ;
+   				fprintf( outfile, "%s\n", cStr ) ;
    				while ( i < buf.length() ) {
    					while ( buf[i] == ' ' || buf[i] == '\t' ) 
    						i++ ;
@@ -134,9 +213,37 @@ class DataList {
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
+    					count = findCount( cut ) ;
+    					
+    					fprintf( "( 4, %d )\t", count ) ;
     					i++ ;
 					} // else if
-					else if ( ( buf[i] == 'C' || buf[i] == 'c' || buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 ) {
+					else if ( ( buf[i] == 'C' || buf[i] == 'c' ) && buf[i+1] == 39 ) {
+						i++ ;
+						pre = i ;
+						pos = i + 1 ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;
+    					DataList[3].push_back( temp ) ;
+    					
+						pre = i + 1 ;
+						i++ ;
+						while ( buf[i] != 39 ) {
+							i++ ;
+						} // while
+						pos = i ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;				
+    					
+						pre = i ;
+						i++ ;	
+						pos = i ;
+						cut = buf.substr( pre, pos-pre ) ;
+						temp.token = cut ;
+    					DataList[3].push_back( temp ) ;
+																
+					} // else if
+					else if ( ( buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 ) {
 						i++ ;
 						pre = i ;
 						pos = i + 1 ;
@@ -185,12 +292,18 @@ class DataList {
     						else if ( tableTest( cut ) == 2 )
     							DataList[2].push_back( temp ) ;	
     						else {
-    							if ( testNumber( cut ) == true ) 
-    								DataList[4].push_back( temp ) ;
-								else if ( testWord( cut ) == true )
-									DataList[5].push_back( temp ) ;	
-								else
-									DataList[6].push_back( temp ) ;
+    							if ( testNumber( cut ) == true ) {
+    								address = sumOfASCII( cut ) % 100 ; 
+    								setTable6( address, cut ) ;
+								} // if
+								else if ( testWord( cut ) == true ) {
+									address = sumOfASCII( cut ) % 100  ; 
+    								setTable5( address, cut ) ;
+								} // else if
+								else {
+									address = sumOfASCII( cut ) % 100  ; 
+    								setTable7( address, cut ) ;
+								} // else
 							} // else
     					} // if 
     					
@@ -200,19 +313,20 @@ class DataList {
     			} // while
 				
     			i = 0 ;
-    			
+    			fprintf( outfile, "\n" ) ; 
 			} // while
 			infile.close() ;
+			fclose(outfile) ;
 		} // ReadInput
 		
 		void show() {				
-			for ( int i = 0 ; i < 7 ; i++ )	{
+			for ( int i = 0 ; i < 4 ; i++ )	{
 				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
 					cout << "table" << i+1 << endl ;
 					cout << DataList[i][j].token << endl ;
 				} //for
 			} // for
-		} // setdata()		
+		} // show()		
 };
 
 
@@ -261,3 +375,12 @@ bool testWord( string str ) {
 	
 	return test ;
 } // testNumber()
+
+int sumOfASCII( string str ) {
+	int ans = 0 ;
+	for ( int i = 0 ; i < str.length() ; i++ ) {
+		ans = ans + str[i] ;
+	} // for
+	
+	return ans ;
+} // suOfASCII
