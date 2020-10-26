@@ -320,64 +320,57 @@ class DataList {
 					else {
 						i++ ;
 						pos_mod = test( buf[i] ) ;
-						
 						while ( i < buf.length() && buf[i] != ' ' && pos_mod == pre_mod ) {
 							i++ ;
 							pos_mod = test( buf[i] ) ;
 						} // while
 						
 						pos = i ;
-						
-
-    					if ( pos >= pre ) {
-    						cut = buf.substr( pre, pos-pre ) ;
-    						low_cut.resize( cut.size() ) ;
-    						high_cut.resize( cut.size() ) ;
-    						std::transform( cut.begin(), cut.end(), low_cut.begin(), :: tolower ) ;
-    						std::transform( cut.begin(), cut.end(), high_cut.begin(), :: toupper ) ;
-    						temp.token = cut ;
-    						if ( tableTest( low_cut ) == 0 ) {
-    							DataList[0].push_back( temp ) ;
-    							count = findCount( low_cut ) ;
-    							fprintf( outfile, "( 1, %d )", count ) ;
-    						}
-    						else if ( tableTest( high_cut ) == 1 ) {
-    							DataList[1].push_back( temp ) ;
-    							count = findCount( high_cut ) ;
-    							fprintf( outfile, "( 2, %d )", count ) ;
-    						}
-    						else if ( tableTest( high_cut ) == 2 ) {
-    							DataList[2].push_back( temp ) ;
-    							count = findCount( high_cut ) ;
-    							fprintf( outfile, "( 3, %d )", count ) ;
+    						if ( pos >= pre ) {
+    							cut = buf.substr( pre, pos-pre ) ;
+    							low_cut.resize( cut.size() ) ;
+    							high_cut.resize( cut.size() ) ;
+    							std::transform( cut.begin(), cut.end(), low_cut.begin(), :: tolower ) ;
+    							std::transform( cut.begin(), cut.end(), high_cut.begin(), :: toupper ) ;
+    							temp.token = cut ;
+    							if ( tableTest( low_cut ) == 0 ) {
+    								DataList[0].push_back( temp ) ;
+    								count = findCount( low_cut ) ;
+    								fprintf( outfile, "( 1, %d )", count ) ;
+    							}
+    							else if ( tableTest( high_cut ) == 1 ) {
+    								DataList[1].push_back( temp ) ;
+    								count = findCount( high_cut ) ;
+    								fprintf( outfile, "( 2, %d )", count ) ;
+    							}
+    							else if ( tableTest( high_cut ) == 2 ) {
+    								DataList[2].push_back( temp ) ;
+								count = findCount( high_cut ) ;
+    								fprintf( outfile, "( 3, %d )", count ) ;
 							}
-    						else {
-    							if ( testNumber( cut ) == true ) {
-    								time++ ;
-    								address = sumOfASCII( cut ) % 100 ; 
-    								setTable6( address, cut ) ;
-    								fprintf( outfile, "( 6, %d )", address ) ;
+    							else {
+    								if ( testNumber( cut ) == true ) {
+    									time++ ;
+    									address = sumOfASCII( cut ) % 100 ; 
+    									setTable6( address, cut ) ;
+    									fprintf( outfile, "( 6, %d )", address ) ;
 								} // if
 								else if ( testWord( cut ) == true ) {
 									address = sumOfASCII( cut ) % 100  ; 
-    								setTable5( address, cut ) ;
-    								fprintf( outfile, "( 5, %d )", address ) ;
+    									setTable7( address, cut ) ;
+    									fprintf( outfile, "( 7, %d )", address ) ;
 								} // else if
 								else {
 									address = sumOfASCII( cut ) % 100  ; 
-    								setTable7( address, cut ) ;
-    								fprintf( outfile, "( 7, %d )", address ) ;
+    									setTable5( address, cut ) ;
+    									fprintf( outfile, "( 5, %d )", address ) ;
 								} // else
 							} // else
-    					} // if 
-    					
-    				} //else
-    				
-    				//cout << i << "and" << buf.length() ;
-    			} // while
-				
-    			i = 0 ;
-    			fprintf( outfile, "\n" ) ; 
+    						} // if 
+    					} //else
+    				} // while
+    				i = 0 ;
+    				fprintf( outfile, "\n" ) ; 
 			} // while
 
 			infile.close() ;
@@ -417,15 +410,10 @@ int main () {
 } // main
 
 int test( char ch ) {
-	
-	if ( ch >= 48 && ch <=57 )
+	if ( ( ch >= 48 && ch <=57 ) || ( ch >= 65 && ch <= 90 ) || ( ch >= 97 && ch <= 122 ) )
 		return 1 ;
-	else if ( ( ch >= 65 && ch <= 90 ) || ( ch >= 97 && ch <= 122 ) ) {
-		return 2 ;
-	}
-	else if ( ( ch >= 42 && ch <= 47 ) || ch == 58 || ch == 59 || ch == 61 || ch == 63 || ch == 35 || ch == 39 || ch == 64 ) {
+	else if ( ( ch >= 42 && ch <= 47 ) || ch == 58 || ch == 59 || ch == 61 || ch == 63 || ch == 35 || ch == 39 || ch == 64 ) 
 		return 3 ;
-	}
 	else 
 		return 4 ;
 } // test()
