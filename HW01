@@ -20,6 +20,8 @@ int test( char ch ) ;
 bool testNumber( string str ) ;
 bool testWord( string str ) ;
 int sumOfASCII( string str ) ;
+bool hasCloseBracket( string str, int no ) ;
+bool has39( string str, int no ) ;
 
 class DataList {
 	std :: vector<Data> Table [4] ;
@@ -114,15 +116,18 @@ class DataList {
 		} // tableTest()
 		
 		int findCount( string str ) {
+			int count = 0 ;
 			for ( int i = 0 ; i < 4 ; i++ ) {
-				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
-					if ( DataList[i][j].token == str )
-						return DataList[i][j].count ;
+				for ( int j = 0 ; j < Table[i].size() ; j++ ) {
+					if ( Table[i][j].token == str ) {
+						count = Table[i][j].count ;
+						return count ;
+					}
 				} // for
 			} // for
 		} // findCount()
 		
-		void setTable567() {
+		void resetTable567() {
 			for ( int i = 0 ; i < 100 ; i++ ) {
 				Table5[i].exist = false ;
 				Table5[i].count = i + 1 ;
@@ -135,48 +140,92 @@ class DataList {
 				Table7[i].exist = false ;
 				Table7[i].count = i + 1 ;
 			} // for
-		} // setTable567()
+		} // resetTable567()
 		
-		void setTable5( int address, string str ) {
+		void setTable5( int &address, string str ) {
+			int time = 0 ;
+			bool same = false ;
 			while ( Table5[address].exist == true ) {
+				time++ ;
+				if ( Table5[address].token == str ) {
+					same = true ;
+					break ;
+				} // if
+				if ( time == 100 ) {
+					cout << "The table is full" << endl ;
+					same = true ;
+					address = -1 ;
+					break ;					
+				}	
 				address++ ;
 				if ( address == 100 )
 					address = 0 ;
 			} // while
-			Table5[address].token = str ;
-			Table5[address].exist = true ;
+			if ( same != true ) {
+				Table5[address].token = str ;
+				Table5[address].exist = true ;
+			} // if
 		} // setTable5() 
 
-		void setTable6( int address, string str ) {
+		void setTable6( int &address, string str ) {
+			int time = 0 ;
+			bool same = false ;
 			while ( Table6[address].exist == true ) {
+				time++ ;
+				if ( Table6[address].token == str ) {
+					same = true ;
+					break ;
+				} // if
+				if ( time == 100 ) {
+					cout << "The table is full" << endl ;
+					same = true ;
+					
+					break ;					
+				}	
 				address++ ;
 				if ( address == 100 )
 					address = 0 ;
 			} // while
-			Table6[address].token = str ;
-			Table6[address].exist = true ;
-		} // setTable5() 
+			if ( same != true ) {
+				Table6[address].token = str ;
+				Table6[address].exist = true ;
+			} // if
+		} // setTable6() 
 		
-		void setTable7( int address, string str ) {
+		void setTable7( int &address, string str ) {
+			int time = 0 ;
+			bool same = false ;
 			while ( Table7[address].exist == true ) {
+				time++ ;
+				if ( Table7[address].token == str ) {
+					same = true ;
+					break ;
+				} // if
+				if ( time == 100 ) {
+					cout << "The table is full" << endl ;
+					same = true ;
+					address = -1 ;
+					break ;					
+				}	
 				address++ ;
 				if ( address == 100 )
 					address = 0 ;
 			} // while
-			Table7[address].token = str ;
-			Table7[address].exist = true ;
-		} // setTable6() 	
+			if ( same != true ) {
+				Table7[address].token = str ;
+				Table7[address].exist = true ;
+			} // if
+		} // setTable7() 
 			
 		void readInput() {
-			string file, outputfile ;
+			string file, outputfile, lit_cut ;
 			fstream infile ;
 			FILE * outfile ;
 			int i = 0, pre, pos ;
 			int pre_mod = 0 , pos_mod = 0, address = 0 ;
-			int count ;
+			int count, time = 0 ;
 			char cStr[256] ;
 			
-  			setTable567() ;
 			cout << "請輸入檔案名稱："; 
 			cin >> file;
 			outputfile = file + "output.txt" ;
@@ -188,11 +237,13 @@ class DataList {
 				cout << "檔案名稱錯誤,重新輸入：" ;
     			cin >> file;
     			outputfile = file + "output.txt" ;
-	 			file = "SIC_" + file + ".txt" ; 
+	 			file = file + "input.txt" ; 
     			infile.open( file.c_str(), fstream::in ) ;
     			outfile = fopen( outputfile.c_str(), "w+t" ) ; 
 			} //while
+			
 			while ( infile.getline( cStr, 256 ) ) {
+				
 				Data temp ;
    				string buf, cut ;
    				buf.assign( cStr ) ;
@@ -205,7 +256,7 @@ class DataList {
 
 					pre = i ;
 					pre_mod = test( buf[i] ) ;
-					if ( buf[i] == '(' && buf[i+1] == '.' && buf[i+2] == ')' ) {
+					if ( buf[i] == '(' && hasCloseBracket( buf, i+1 ) == true ) {
 						i = buf.length() ;
 					} // if
 					else if ( test( buf[i] ) == 3 ) {
@@ -214,17 +265,17 @@ class DataList {
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
     					count = findCount( cut ) ;
-    					
-    					fprintf( "( 4, %d )\t", count ) ;
+    					fprintf( outfile, "( 4, %d )", count ) ;
     					i++ ;
 					} // else if
-					else if ( ( buf[i] == 'C' || buf[i] == 'c' ) && buf[i+1] == 39 ) {
+					else if ( ( buf[i] == 'C' || buf[i] == 'c' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) {
 						i++ ;
 						pre = i ;
 						pos = i + 1 ;
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
+    					fprintf( outfile, "( 4, 9 )" ) ;
     					
 						pre = i + 1 ;
 						i++ ;
@@ -233,7 +284,10 @@ class DataList {
 						} // while
 						pos = i ;
 						cut = buf.substr( pre, pos-pre ) ;
-						temp.token = cut ;				
+						temp.token = cut ;	
+						address = sumOfASCII( cut ) % 100  ; 
+    					setTable7( address, cut ) ;			
+    					fprintf( outfile, "( 7, %d )", address ) ;
     					
 						pre = i ;
 						i++ ;	
@@ -241,15 +295,16 @@ class DataList {
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
-																
+						fprintf( outfile, "( 4, 9 )" ) ;										
 					} // else if
-					else if ( ( buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 ) {
+					else if ( ( buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) {
 						i++ ;
 						pre = i ;
 						pos = i + 1 ;
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
+    					fprintf( outfile, "( 4, 9 )" ) ;
     					
 						pre = i + 1 ;
 						i++ ;
@@ -259,6 +314,8 @@ class DataList {
 						pos = i ;
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;				
+						setTable6( address, cut ) ;			
+    					fprintf( outfile, "( 6, %d )", address ) ;
     					
 						pre = i ;
 						i++ ;	
@@ -266,7 +323,7 @@ class DataList {
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
-																
+						fprintf( outfile, "( 4, 9 )" ) ;										
 					} // else if
 					else {
 						i++ ;
@@ -278,31 +335,45 @@ class DataList {
 						} // while
 						
 						pos = i ;
-						if ( i > pre + 1 ) {
-							i++ ;
-						} // if
+						
 
     					if ( pos >= pre ) {
     						cut = buf.substr( pre, pos-pre ) ;
     						temp.token = cut ;
-    						if ( tableTest( cut ) == 0 ) 
+    						if ( tableTest( cut ) == 0 ) {
+    							lit_cut = cut ;
+    							for ( int i = 0 ; i < cut.size() ; i++ ) 
+									lit_cut[i] = tolower( lit_cut[i] ) ;
     							DataList[0].push_back( temp ) ;
-    						else if ( tableTest( cut ) == 1 )
+    							count = findCount( lit_cut ) ;
+    							fprintf( outfile, "( 1, %d )", count ) ;
+    						}
+    						else if ( tableTest( cut ) == 1 ) {
     							DataList[1].push_back( temp ) ;
-    						else if ( tableTest( cut ) == 2 )
-    							DataList[2].push_back( temp ) ;	
+    							count = findCount( cut ) ;
+    							fprintf( outfile, "( 2, %d )", count ) ;
+    						}
+    						else if ( tableTest( cut ) == 2 ) {
+    							DataList[2].push_back( temp ) ;
+    							count = findCount( cut ) ;
+    							fprintf( outfile, "( 3, %d )", count ) ;
+							}
     						else {
     							if ( testNumber( cut ) == true ) {
+    								time++ ;
     								address = sumOfASCII( cut ) % 100 ; 
     								setTable6( address, cut ) ;
+    								fprintf( outfile, "( 6, %d )", address ) ;
 								} // if
 								else if ( testWord( cut ) == true ) {
 									address = sumOfASCII( cut ) % 100  ; 
     								setTable5( address, cut ) ;
+    								fprintf( outfile, "( 5, %d )", address ) ;
 								} // else if
 								else {
 									address = sumOfASCII( cut ) % 100  ; 
     								setTable7( address, cut ) ;
+    								fprintf( outfile, "( 7, %d )", address ) ;
 								} // else
 							} // else
     					} // if 
@@ -315,11 +386,22 @@ class DataList {
     			i = 0 ;
     			fprintf( outfile, "\n" ) ; 
 			} // while
+
 			infile.close() ;
 			fclose(outfile) ;
 		} // ReadInput
 		
-		void show() {				
+		void showTable() {
+			
+				for ( int j = 0 ; j < 100 ; j++ ) {
+					cout << Table5[j].count << "," << Table5[j].token << endl ;
+					
+				} //for
+		
+		}
+		
+		void show() {		
+					
 			for ( int i = 0 ; i < 4 ; i++ )	{
 				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
 					cout << "table" << i+1 << endl ;
@@ -334,8 +416,11 @@ int main () {
 	string fileName ;
 	DataList datalist ;
 	datalist.readTable() ;
+	
+	datalist.resetTable567() ;
 	datalist.readInput() ;
-	datalist.show() ;
+	datalist.showTable() ;
+	//datalist.show() ;
 } // main
 
 int test( char ch ) {
@@ -375,6 +460,24 @@ bool testWord( string str ) {
 	
 	return test ;
 } // testNumber()
+
+bool hasCloseBracket( string str, int no ) {
+	bool test = false ;
+	for ( int i = no ; i < str.size() ; i++ ) {
+		if ( str[i] == ')' ) 
+			return true ;
+	} // for
+	return false ;
+} // hasCloseBracket()
+
+bool has39( string str, int no ) {
+	bool test = false ;
+	for ( int i = no ; i < str.size() ; i++ ) {
+		if ( str[i] == 39 ) 
+			return true ;
+	} // for
+	return false ;
+} // has39()
 
 int sumOfASCII( string str ) {
 	int ans = 0 ;
