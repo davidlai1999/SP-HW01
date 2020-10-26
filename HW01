@@ -19,7 +19,6 @@ struct Data {
 
 int test( char ch ) ;
 bool testNumber( string str ) ;
-bool testWord( string str ) ;
 int sumOfASCII( string str ) ;
 bool hasCloseBracket( string str, int no ) ;
 bool has39( string str, int no ) ;
@@ -36,10 +35,9 @@ class DataList {
 			string file, str ;
 			int dataNo = 1 ;
 			char cStr[256] ;
-			fstream infile ;
-			file = "Table1.table" ;
-			infile.open( file.c_str(), fstream::in ) ;
-			while ( infile.getline( cStr, 256 ) ) {
+			FILE *tablefile ;
+			tablefile = fopen( "Table1.table", "r" ) ;
+			while ( fscanf( tablefile, "%s", cStr ) != EOF ) {
 				Data temp ;
    				string buf ;
    				buf.assign( cStr ) ;
@@ -48,12 +46,11 @@ class DataList {
     			Table[0].push_back( temp ) ;
     			dataNo++ ;
     		} // while
-    		infile.close() ;
+    		fclose(tablefile) ;
     		
     		dataNo = 1 ;
-			file = "Table2.table" ;
-			infile.open( file.c_str(), fstream::in ) ;
-			while ( infile.getline( cStr, 256 ) ) {
+			tablefile = fopen( "Table2.table", "r" ) ;
+			while ( fscanf( tablefile, "%s", cStr ) != EOF ) {
 				Data temp ;
    				string buf ;
    				buf.assign( cStr ) ;
@@ -62,12 +59,11 @@ class DataList {
     			Table[1].push_back( temp ) ;
     			dataNo++ ;
     		} // while
-    		infile.close() ;
+    		fclose(tablefile) ;
     		
     		dataNo = 1 ;
-			file = "Table3.table" ;
-			infile.open( file.c_str(), fstream::in ) ;
-			while ( infile.getline( cStr, 256 ) ) {
+			tablefile = fopen( "Table3.table", "r" ) ;
+			while ( fscanf( tablefile, "%s", cStr ) != EOF ) {
 				Data temp ;
    				string buf ;
    				buf.assign( cStr ) ;
@@ -76,12 +72,11 @@ class DataList {
     			Table[2].push_back( temp ) ;
     			dataNo++ ;
     		} // while
-    		infile.close() ;
+    		fclose(tablefile) ;
     		
     		dataNo = 1 ;
-			file = "Table4.table" ;
-			infile.open( file.c_str(), fstream::in ) ;
-			while ( infile.getline( cStr, 256 ) ) {
+			tablefile = fopen( "Table4.table", "r" ) ;
+			while ( fscanf( tablefile, "%s", cStr ) != EOF ) {
 				Data temp ;
    				string buf ;
    				buf.assign( cStr ) ;
@@ -90,7 +85,7 @@ class DataList {
     			Table[3].push_back( temp ) ;
     			dataNo++ ;
     		} // while
-    		infile.close() ;    		
+    		fclose(tablefile) ;   		
 		} // readTable()
 			
 		int tableTest( string str ) {		
@@ -355,11 +350,6 @@ class DataList {
     									setTable6( address, cut ) ;
     									fprintf( outfile, "( 6, %d )", address ) ;
 								} // if
-								else if ( testWord( cut ) == true ) {
-									address = sumOfASCII( cut ) % 100  ; 
-    									setTable7( address, cut ) ;
-    									fprintf( outfile, "( 7, %d )", address ) ;
-								} // else if
 								else {
 									address = sumOfASCII( cut ) % 100  ; 
     									setTable5( address, cut ) ;
@@ -378,16 +368,11 @@ class DataList {
 		} // ReadInput
 		
 		void showTable() {
-			
 				for ( int j = 0 ; j < 100 ; j++ ) {
-					cout << Table5[j].count << "," << Table5[j].token << endl ;
-					
-				} //for
-		
+					cout << Table5[j].count << "," << Table5[j].token << endl ;	
 		}
 		
-		void show() {		
-					
+		void show() {					
 			for ( int i = 0 ; i < 4 ; i++ )	{
 				for ( int j = 0 ; j < DataList[i].size() ; j++ ) {
 					cout << "table" << i+1 << endl ;
@@ -402,7 +387,6 @@ int main () {
 	string fileName ;
 	DataList datalist ;
 	datalist.readTable() ;
-	
 	datalist.resetTable567() ;
 	datalist.readInput() ;
 	datalist.showTable() ;
@@ -422,18 +406,6 @@ bool testNumber( string str ) {
 	bool test = true ;
 	for ( int i = 0 ; i < str.size() ; i++ ) {
 		if ( str[i] < 48 || str[i] > 57 ) {
-			test = false ;
-			return test ;
-		} // if
-	} // for
-	
-	return test ;
-} // testNumber()
-
-bool testWord( string str ) {
-	bool test = true ;
-	for ( int i = 0 ; i < str.size() ; i++ ) {
-		if ( ( str[i] < 65 || str[i] > 90 ) && ( str[i] < 97 || str[i] > 122 ) ) {
 			test = false ;
 			return test ;
 		} // if
