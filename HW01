@@ -7,6 +7,7 @@
 #include <fstream>
 #include <cstring>
 #include <cctype>
+#include <algorithm>
 
 using namespace std ;
 
@@ -92,19 +93,8 @@ class DataList {
     		infile.close() ;    		
 		} // readTable()
 			
-		int tableTest( string str ) {
-			string low_str = str ;
-			for ( int i = 0 ; i < str.size() ; i++ ) {
-				low_str[i] = tolower( low_str[i] ) ;
-			} // for
-			
-			for ( int i = 0 ; i < Table[0].size() ; i++ ) {
-				if ( low_str == Table[0][i].token )
-					return 0 ;
-			} // for
-			
-		
-			for ( int i = 1 ; i < 3 ; i++ ) {
+		int tableTest( string str ) {		
+			for ( int i = 0 ; i < 3 ; i++ ) {
 				for ( int j = 0 ; j < Table[i].size() ; j++ ) {
 					if ( str == Table[i][j].token ) {
 						return i ;
@@ -218,7 +208,7 @@ class DataList {
 		} // setTable7() 
 			
 		void readInput() {
-			string file, outputfile, lit_cut ;
+			string file, outputfile, low_cut, high_cut ;
 			fstream infile ;
 			FILE * outfile ;
 			int i = 0, pre, pos ;
@@ -256,19 +246,21 @@ class DataList {
 
 					pre = i ;
 					pre_mod = test( buf[i] ) ;
-					if ( buf[i] == '(' && hasCloseBracket( buf, i+1 ) == true ) {
+					if ( buf[i] == '(' && hasCloseBracket( buf, i+1 ) == true ) { // (.) 
 						i = buf.length() ;
 					} // if
-					else if ( test( buf[i] ) == 3 ) {
+					else if ( test( buf[i] ) == 3 ) { // 標點符號 
 						pos = i + 1 ;
 						cut = buf.substr( pre, pos-pre ) ;
 						temp.token = cut ;
     					DataList[3].push_back( temp ) ;
     					count = findCount( cut ) ;
     					fprintf( outfile, "( 4, %d )", count ) ;
+    					if ( buf[i] == '.' )
+    						i = buf.length() ;
     					i++ ;
 					} // else if
-					else if ( ( buf[i] == 'C' || buf[i] == 'c' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) {
+					else if ( ( buf[i] == 'C' || buf[i] == 'c' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) { // C' '
 						i++ ;
 						pre = i ;
 						pos = i + 1 ;
@@ -297,7 +289,7 @@ class DataList {
     					DataList[3].push_back( temp ) ;
 						fprintf( outfile, "( 4, 9 )" ) ;										
 					} // else if
-					else if ( ( buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) {
+					else if ( ( buf[i] == 'X' || buf[i] == 'x' ) && buf[i+1] == 39 && has39( buf, i+2 ) == true ) { // X' '
 						i++ ;
 						pre = i ;
 						pos = i + 1 ;
@@ -339,23 +331,24 @@ class DataList {
 
     					if ( pos >= pre ) {
     						cut = buf.substr( pre, pos-pre ) ;
+    						low_cut.resize( cut.size() ) ;
+    						high_cut.resize( cut.size() ) ;
+    						std::transform( cut.begin(), cut.end(), low_cut.begin(), :: tolower ) ;
+    						std::transform( cut.begin(), cut.end(), high_cut.begin(), :: toupper ) ;
     						temp.token = cut ;
-    						if ( tableTest( cut ) == 0 ) {
-    							lit_cut = cut ;
-    							for ( int i = 0 ; i < cut.size() ; i++ ) 
-									lit_cut[i] = tolower( lit_cut[i] ) ;
+    						if ( tableTest( low_cut ) == 0 ) {
     							DataList[0].push_back( temp ) ;
-    							count = findCount( lit_cut ) ;
+    							count = findCount( low_cut ) ;
     							fprintf( outfile, "( 1, %d )", count ) ;
     						}
-    						else if ( tableTest( cut ) == 1 ) {
+    						else if ( tableTest( high_cut ) == 1 ) {
     							DataList[1].push_back( temp ) ;
-    							count = findCount( cut ) ;
+    							count = findCount( high_cut ) ;
     							fprintf( outfile, "( 2, %d )", count ) ;
     						}
-    						else if ( tableTest( cut ) == 2 ) {
+    						else if ( tableTest( high_cut ) == 2 ) {
     							DataList[2].push_back( temp ) ;
-    							count = findCount( cut ) ;
+    							count = findCount( high_cut ) ;
     							fprintf( outfile, "( 3, %d )", count ) ;
 							}
     						else {
